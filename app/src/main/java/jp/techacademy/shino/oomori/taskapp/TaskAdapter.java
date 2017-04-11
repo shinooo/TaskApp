@@ -7,7 +7,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.realm.RealmModel;
 import io.realm.RealmObject;
@@ -18,32 +23,32 @@ import io.realm.RealmObject;
 
 public class TaskAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater;
-    private List<RealmModel> mTaskList;
+    private ArrayList<Task> mTaskArrayList;
 
     public TaskAdapter(Context context) {
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void setTaskList(List<RealmModel> taskList) {
-        mTaskList = taskList;
+    public void setTaskList(ArrayList<Task> taskArrayList) {
+        mTaskArrayList = taskArrayList;
     }
 
     // アイテム（データ）の数を返す
     @Override
     public int getCount() {
-        return mTaskList.size();
+        return mTaskArrayList.size();
     }
 
     // アイテム（データ）を返す
     @Override
     public Object getItem(int position) {
-        return mTaskList.get(position);
+        return mTaskArrayList.get(position);
     }
 
     // アイテム（データ）のIDを返す
     @Override
     public long getItemId(int position) {
-        return 0;
+        return mTaskArrayList.get(position).getId();
     }
 
     // Viewを返す
@@ -58,8 +63,12 @@ public class TaskAdapter extends BaseAdapter {
         TextView textView2 = (TextView) convertView.findViewById(android.R.id.text2);
 
         // 後でTaskクラスから情報を取得するように変更する
-        textView1.setText(mTaskList.get(position));
+        textView1.setText(mTaskArrayList.get(position).getTitle());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE);
+        Date date = mTaskArrayList.get(position).getDate();
+        textView2.setText(simpleDateFormat.format(date));
 
         return convertView;
     }
+
 }
