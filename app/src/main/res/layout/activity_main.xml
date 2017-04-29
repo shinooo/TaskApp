@@ -8,11 +8,29 @@
     android:fitsSystemWindows="true"
     tools:context="jp.techacademy.shino.oomori.taskapp.MainActivity">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <EditText
+        android:id="@+id/category_search_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="カテゴリー検索" />
+        <Button
+            android:id="@+id/search_button"
+            android:layout_width="15dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/category_search_text"
+            android:layout_alignParentRight="true"
+            android:text="絞込" />
+
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:layout_below="@id/category_search_text"
+        />
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

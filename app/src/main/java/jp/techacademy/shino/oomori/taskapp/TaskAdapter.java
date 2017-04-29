@@ -66,7 +66,8 @@ public class TaskAdapter extends BaseAdapter {
         textView1.setText(mTaskArrayList.get(position).getTitle());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE);
         Date date = mTaskArrayList.get(position).getDate();
-        textView2.setText(simpleDateFormat.format(date));
+        String category = mTaskArrayList.get(position).getCategory();
+        textView2.setText(simpleDateFormat.format(date) + "  " + category);
 
         return convertView;
     }

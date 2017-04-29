@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -33,17 +34,30 @@ public class MainActivity extends AppCompatActivity {
     private RealmChangeListener mRealmListener = new RealmChangeListener() {
         @Override
         public void onChange(Object element) {
-            reloadListView();
+            reloadListView("");
         }
     };
 
     private ListView mListView;
     private TaskAdapter mTaskAdapter;
+    private EditText mSelectCategory;
+
+    private View.OnClickListener mOnSearchClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // search
+            String selectCategory = mSelectCategory.getText().toString();
+            reloadListView(selectCategory);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSelectCategory = (EditText)findViewById(R.id.category_search_text);
+        findViewById(R.id.search_button).setOnClickListener(mOnSearchClickListener);
 
         //FloatingActionButtonをタップした時の処理を修正。
         // Realmの設定。
@@ -114,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                         alarmManager.cancel(resultPendingIntent);
 
-                        reloadListView();
+                        reloadListView("");
                     }
                 });
                 builder.setNegativeButton("CANCEL", null);
@@ -126,14 +140,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        reloadListView();
+        reloadListView("");
     }
 
     //ListViewの更新
-    private void reloadListView() {
-
+    private void reloadListView(String selectCategory) {
+        RealmResults<Task> taskRealmResults;
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        RealmResults<Task> taskRealmResults = mRealm.where(Task.class).findAllSorted("date", Sort.DESCENDING);
+        if(selectCategory.equals("")) {
+            taskRealmResults = mRealm.where(Task.class).findAllSorted("date", Sort.DESCENDING);
+        }else {
+            taskRealmResults = mRealm.where(Task.class).equalTo("category", selectCategory).findAllSorted("date", Sort.DESCENDING);
+        }
         // 上記の結果を、TaskList としてセットする
         mTaskAdapter.setTaskList((ArrayList<Task>) mRealm.copyFromRealm(taskRealmResults));
         // TaskのListView用のアダプタに渡す
