@@ -51,14 +51,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Override
+    private View.OnClickListener mOnCreateCategoryClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MainActivity.this, EditCategory.class);
+            startActivity(intent);
+        }
+    };
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mSelectCategory = (EditText)findViewById(R.id.category_search_text);
         findViewById(R.id.search_button).setOnClickListener(mOnSearchClickListener);
-
+        findViewById(R.id.input_category_button).setOnClickListener(mOnCreateCategoryClickListener);
         //FloatingActionButtonをタップした時の処理を修正。
         // Realmの設定。
         // ListViewの設定。

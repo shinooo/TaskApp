@@ -52,7 +52,6 @@ public class TaskAdapter extends BaseAdapter {
     }
 
     // Viewを返す
-    // TODO : Viewを返さないといけない理由
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {

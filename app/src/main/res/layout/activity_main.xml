@@ -10,38 +10,38 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<LinearLayout
+    android:id = "@+id/seach_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
     <EditText
         android:id="@+id/category_search_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:hint="カテゴリー検索" />
         <Button
             android:id="@+id/search_button"
-            android:layout_width="15dp"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/category_search_text"
-            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
             android:text="絞込" />
+</LinearLayout>
+        <Button
+            android:id="@+id/input_category_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="カテゴリー追加" />
 
-    <ListView
+        <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/category_search_text"
+        android:layout_below="@id/seach_container"
+            android:layout_above="@id/seach_container"
         />
-
     </RelativeLayout>
-    <Button
-        android:id="@+id/input_category_button"
-        android:layout_width="15dp"
-        android:layout_height="wrap_content"
-        android:text="カテゴリー追加" />
-
-</RelativeLayout>
 
 <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
