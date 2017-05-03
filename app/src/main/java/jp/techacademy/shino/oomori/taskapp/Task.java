@@ -4,6 +4,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 import java.io.Serializable;
+import java.sql.Struct;
 import java.util.Date;
 
 /**
@@ -15,6 +16,7 @@ public class Task extends RealmObject implements Serializable {
     private String contents;
     private Date date;
     private String category;
+//    private Category category;
 
     @PrimaryKey
     private int id;
