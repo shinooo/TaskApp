@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -32,17 +34,24 @@ public class EditCategory extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_category);
 
+        Spinner testSpinner = (Spinner) findViewById(R.id.test_spinner);
+        String spinnerItems[] = {"Spinner","Spinner1","Spinner2","Spinner3"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        testSpinner.setAdapter(adapter);
+
+
+        /*
         // ActionBarを設定する
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        */
 
-        findViewById(R.id.add_category_button).setOnClickListener(mOnDoneClickListener);
-        InputCategory = (EditText)findViewById(R.id.category_edit_text);
-
-
+//        findViewById(R.id.add_category_button).setOnClickListener(mOnDoneClickListener);
+//        InputCategory = (EditText)findViewById(R.id.category_text);
 
     }
 
@@ -69,7 +78,7 @@ public class EditCategory extends AppCompatActivity {
 
         String category = InputCategory.getText().toString();
 
-        mCategory.setCategory(category);
+        mCategory.setCategoryName(category);
 
         realm.copyToRealmOrUpdate(mCategory);
         realm.commitTransaction();

@@ -15,8 +15,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,22 +36,16 @@ public class MainActivity extends AppCompatActivity {
     private RealmChangeListener mRealmListener = new RealmChangeListener() {
         @Override
         public void onChange(Object element) {
-            reloadListView("");
+            reloadListView(selectedCategoryID);
+            setCategorySpinner();
         }
     };
 
     private ListView mListView;
     private TaskAdapter mTaskAdapter;
-    private EditText mSelectCategory;
-
-    private View.OnClickListener mOnSearchClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // search
-            String selectCategory = mSelectCategory.getText().toString();
-            reloadListView(selectCategory);
-        }
-    };
+    private Spinner categorySpinner;
+    private CategoryAdapter categoryAdapter;
+    private int selectedCategoryID = 0;
 
     private View.OnClickListener mOnCreateCategoryClickListener = new View.OnClickListener() {
         @Override
@@ -63,13 +59,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSelectCategory = (EditText)findViewById(R.id.category_search_text);
-        findViewById(R.id.search_button).setOnClickListener(mOnSearchClickListener);
+        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
         findViewById(R.id.input_category_button).setOnClickListener(mOnCreateCategoryClickListener);
-        //FloatingActionButtonをタップした時の処理を修正。
-        // Realmの設定。
-        // ListViewの設定。
 
+        //FloatingActionButtonをタップした時の処理
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                         alarmManager.cancel(resultPendingIntent);
 
-                        reloadListView("");
+                        reloadListView(selectedCategoryID);
                     }
                 });
                 builder.setNegativeButton("CANCEL", null);
@@ -147,17 +140,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        reloadListView("");
+        setCategorySpinner();
+
+            selectedCategoryID = 0;
+
+            categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view,
+                                           int position, long id) {
+                    Category selectedCategory = (Category) categoryAdapter.getItem(position);
+                    selectedCategoryID = selectedCategory.getId();
+                    reloadListView(selectedCategoryID);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapter) {
+                    selectedCategoryID = 0;
+                    reloadListView(selectedCategoryID);
+                }
+            });
+
+        reloadListView(selectedCategoryID);
+    }
+
+    private void setCategorySpinner() {
+        RealmResults<Category> categoryRealmResults;
+        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
+        categoryRealmResults = mRealm.where(Category.class).findAllSorted("id", Sort.ASCENDING);
+        categoryAdapter = new CategoryAdapter(MainActivity.this);
+        categoryAdapter.setCategoryList((ArrayList<Category>) mRealm.copyFromRealm(categoryRealmResults));
+        categorySpinner.setAdapter(categoryAdapter);
     }
 
     //ListViewの更新
-    private void reloadListView(String selectCategory) {
+    private void reloadListView(int selectCategoryId) {
         RealmResults<Task> taskRealmResults;
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        if(selectCategory.equals("")) {
+        if(selectCategoryId == 0) {
             taskRealmResults = mRealm.where(Task.class).findAllSorted("date", Sort.DESCENDING);
         }else {
-            taskRealmResults = mRealm.where(Task.class).equalTo("category", selectCategory).findAllSorted("date", Sort.DESCENDING);
+            taskRealmResults = mRealm.where(Task.class).equalTo("categoryID", selectCategoryId).findAllSorted("date", Sort.DESCENDING);
         }
         // 上記の結果を、TaskList としてセットする
         mTaskAdapter.setTaskList((ArrayList<Task>) mRealm.copyFromRealm(taskRealmResults));
@@ -173,18 +195,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         mRealm.close();
     }
-
-    private void addTaskForTest() {
-        Task task = new Task();
-        task.setTitle("作業");
-        task.setContents("プログラムを書いてPUSHする");
-        task.setDate(new Date());
-        task.setId(0);
-        mRealm.beginTransaction();
-        mRealm.copyToRealmOrUpdate(task);
-        mRealm.commitTransaction();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

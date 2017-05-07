@@ -14,8 +14,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.realm.Realm;
 import io.realm.RealmModel;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Shino on 2017/04/09.
@@ -24,9 +27,15 @@ import io.realm.RealmObject;
 public class TaskAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater;
     private ArrayList<Task> mTaskArrayList;
+    private Realm realm;
+    RealmResults<Category> categoryRealmResults;
 
     public TaskAdapter(Context context) {
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        realm = Realm.getDefaultInstance();
+        realm.close();
+        categoryRealmResults = realm.where(Category.class).findAllSorted("id", Sort.DESCENDING);
     }
 
     public void setTaskList(ArrayList<Task> taskArrayList) {
@@ -61,11 +70,11 @@ public class TaskAdapter extends BaseAdapter {
         TextView textView1 = (TextView) convertView.findViewById(android.R.id.text1);
         TextView textView2 = (TextView) convertView.findViewById(android.R.id.text2);
 
-        // 後でTaskクラスから情報を取得するように変更する
         textView1.setText(mTaskArrayList.get(position).getTitle());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE);
         Date date = mTaskArrayList.get(position).getDate();
-        String category = mTaskArrayList.get(position).getCategory();
+//        String category = categoryRealmResults.get(mTaskArrayList.get(position).getCategoryId()).getCategoryName();
+        String category = "";
         textView2.setText(simpleDateFormat.format(date) + "  " + category);
 
         return convertView;

@@ -9,17 +9,17 @@ import java.io.Serializable;
  */
 
 public class Category extends RealmObject implements Serializable {
-    private String category;
+    private String categoryName;
 
     @PrimaryKey
     private int id;
 
-    public String getCategory() {
-        return category;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public int getId() {

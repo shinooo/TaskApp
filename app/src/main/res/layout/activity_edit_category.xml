@@ -6,21 +6,12 @@
     android:layout_height="match_parent"
     tools:context="jp.techacademy.shino.oomori.taskapp.EditCategory">
 
-
-
-    <EditText
-        android:id="@+id/category_text"
-        android:layout_width="0dp"
+    <Spinner
+        android:id="@+id/test_spinner"
+        android:layout_width="395dp"
         android:layout_height="wrap_content"
-        android:hint="カテゴリー名"
         tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="8dp" />
-    <Button
-        android:id="@+id/add_category_button"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="追加"
-        tools:layout_editor_absoluteY="49dp"
-        tools:layout_editor_absoluteX="27dp" />
+
 
 </android.support.constraint.ConstraintLayout>

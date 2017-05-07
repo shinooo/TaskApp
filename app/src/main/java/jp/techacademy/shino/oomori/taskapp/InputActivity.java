@@ -9,24 +9,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class InputActivity extends AppCompatActivity {
 
     private int mYear, mMonth, mDay, mHour, mMinute;
     private Button mDateButton, mTimeButton;
-    private EditText mTitleEdit, mContentEdit, mCategoryEdit;
+    private EditText mTitleEdit, mContentEdit;
+    private Spinner mCategorySpinner;
     private Task mTask;
+    private Realm realm;
+    private CategoryAdapter categoryAdapter;
+    private int selectedCategoryID;
+
     private View.OnClickListener mOnDateClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -83,35 +92,62 @@ public class InputActivity extends AppCompatActivity {
         }
 
         // UI部品の設定
+        mTitleEdit = (EditText)findViewById(R.id.title_edit_text);
+        mContentEdit = (EditText)findViewById(R.id.content_edit_text);
+        mCategorySpinner = (Spinner)findViewById(R.id.category_spinner);
+
         mDateButton = (Button)findViewById(R.id.date_button);
         mDateButton.setOnClickListener(mOnDateClickListener);
         mTimeButton = (Button)findViewById(R.id.times_button);
         mTimeButton.setOnClickListener(mOnTimeClickListener);
         findViewById(R.id.done_button).setOnClickListener(mOnDoneClickListener);
-        mTitleEdit = (EditText)findViewById(R.id.title_edit_text);
-        mContentEdit = (EditText)findViewById(R.id.content_edit_text);
-        mCategoryEdit = (EditText)findViewById(R.id.category_edit_text);
 
         // EXTRA_TASK から Task の id を取得して、 id から Task のインスタンスを取得する
         Intent intent = getIntent();
         int taskId = intent.getIntExtra(MainActivity.EXTRA_TASK, -1);
-        Realm realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
         mTask = realm.where(Task.class).equalTo("id", taskId).findFirst();
         realm.close();
 
+        RealmResults<Category> categoryRealmResults;
+        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
+        categoryRealmResults = realm.where(Category.class).findAllSorted("id", Sort.ASCENDING);
+        categoryAdapter = new CategoryAdapter(this);
+        categoryAdapter.setCategoryList((ArrayList<Category>) realm.copyFromRealm(categoryRealmResults));
+        mCategorySpinner = (Spinner) findViewById(R.id.category_spinner);
+        mCategorySpinner.setAdapter(categoryAdapter);
+        mCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view,
+                                       int position, long id) {
+                // Here you get the current item (a User object) that is selected by its position
+                Category selectedCategory = (Category) categoryAdapter.getItem(position);
+                // Here you can do the action you want to...
+                selectedCategoryID = selectedCategory.getId();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapter) {
+                selectedCategoryID = 0;
+            }
+        });
+
         if (mTask == null) {
             // 新規作成の場合
+            mCategorySpinner.setSelection(realm.where(Category.class).equalTo("id", 0).findFirst().getId());
+
             Calendar calendar = Calendar.getInstance();
             mYear = calendar.get(Calendar.YEAR);
             mMonth = calendar.get(Calendar.MONTH);
             mDay = calendar.get(Calendar.DAY_OF_MONTH);
             mHour = calendar.get(Calendar.HOUR_OF_DAY);
             mMinute = calendar.get(Calendar.MINUTE);
+
         } else {
             // 更新の場合
             mTitleEdit.setText(mTask.getTitle());
             mContentEdit.setText(mTask.getContents());
-            mCategoryEdit.setText(mTask.getCategory());
+            // Category名取得
+            mCategorySpinner.setSelection(realm.where(Category.class).equalTo("id", mTask.getCategoryId()).findFirst().getId());
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(mTask.getDate());
@@ -151,14 +187,13 @@ public class InputActivity extends AppCompatActivity {
 
         String title = mTitleEdit.getText().toString();
         String content = mContentEdit.getText().toString();
-        String category = mCategoryEdit.getText().toString();
 
         mTask.setTitle(title);
         mTask.setContents(content);
         GregorianCalendar calendar = new GregorianCalendar(mYear,mMonth,mDay,mHour,mMinute);
         Date date = calendar.getTime();
         mTask.setDate(date);
-        mTask.setCategory(category);
+        mTask.setCategoryId(selectedCategoryID);
 
         realm.copyToRealmOrUpdate(mTask);
         realm.commitTransaction();
