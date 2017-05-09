@@ -19,21 +19,17 @@ public class TaskApp extends Application {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .initialData(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        Category category = realm.createObject(Category.class, 0);
+                        category.setCategoryName("Default");
+                    }
+                })
+                // アプリのアンインストールの手間が省けるけど、公開するときにそのままだと危険！！！
+                .deleteRealmIfMigrationNeeded()
+                .build();
         Realm.setDefaultConfiguration(config);
-
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults categoryRealmResults = realm.where(Category.class).findAll();
-        RealmResults taskRealmResults = realm.where(Task.class).findAll();
-
-        if (categoryRealmResults.isEmpty()) {
-            realm.beginTransaction();
-            // 新規作成の場合
-            Category category = realm.createObject(Category.class,0);
-            category.setCategoryName("Default");
-            realm.commitTransaction();
-        }
-
-        realm.close();
     }
 }

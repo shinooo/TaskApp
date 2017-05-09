@@ -29,7 +29,7 @@ import io.realm.Sort;
 public class EditCategory extends AppCompatActivity {
 
     private EditText InputCategory;
-    private Category mCategory;
+ //   private Category mCategory;
 
     private Realm mRealm;
     private RealmChangeListener mRealmListener = new RealmChangeListener() {
@@ -43,14 +43,6 @@ public class EditCategory extends AppCompatActivity {
     private CategoryAdapter categoryAdapter;
     private int selectedCategoryID = 0;
 
-    private View.OnClickListener mOnDoneClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            editCategory();
-            finish();
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +54,28 @@ public class EditCategory extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Category add
-                Log.d("DEBUG","add button click");
+                // テキスト入力用Viewの作成
+                final EditText editView = new EditText(EditCategory.this);
+                AlertDialog.Builder dialog = new AlertDialog.Builder(EditCategory.this);
+
+                dialog.setTitle("カテゴリー名を入力してください");
+                dialog.setView(editView);
+
+                // OKボタンの設定
+                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // OKボタンをタップした時の処理をここに記述
+                        editCategory(null, editView.getText().toString());
+                    }
+                });
+
+                // キャンセルボタンの設定
+                dialog.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // キャンセルボタンをタップした時の処理をここに記述
+                    }
+                });
+                dialog.show();
             }
         });
 
@@ -79,7 +92,29 @@ public class EditCategory extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // 入力・編集する
-                Log.d("DEBUG","Listview click");
+                // テキスト入力用Viewの作成
+                final Category target = (Category) parent.getAdapter().getItem(position);
+                final EditText editView = new EditText(EditCategory.this);
+                AlertDialog.Builder dialog = new AlertDialog.Builder(EditCategory.this);
+
+                dialog.setTitle("カテゴリー名を入力してください");
+                dialog.setView(editView);
+
+                // OKボタンの設定
+                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // OKボタンをタップした時の処理をここに記述
+                        editCategory(target, editView.getText().toString());
+                    }
+                });
+
+                // キャンセルボタンの設定
+                dialog.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // キャンセルボタンをタップした時の処理をここに記述
+                    }
+                });
+                dialog.show();
             }
         });
 
@@ -104,6 +139,12 @@ public class EditCategory extends AppCompatActivity {
                             RealmResults<Category> results = mRealm.where(Category.class).equalTo("id", category.getId()).findAll();
 
                             mRealm.beginTransaction();
+                            // 削除するカテゴリーを持つタスクを更新
+                            RealmResults<Task> targets = mRealm.where(Task.class).equalTo("categoryID", category.getId()).findAll();
+                            for (Task targetTask : targets) {
+                                targetTask.setCategoryId(0);
+                            }
+
                             results.deleteAllFromRealm();
                             mRealm.commitTransaction();
 
@@ -126,11 +167,8 @@ public class EditCategory extends AppCompatActivity {
     //ListViewの更新
     private void reloadListView() {
         RealmResults<Category> categoryRealmResults;
-        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
         categoryRealmResults = mRealm.where(Category.class).findAllSorted("id", Sort.ASCENDING);
-        // 上記の結果を、TaskList としてセットする
         categoryAdapter.setCategoryList((ArrayList<Category>) mRealm.copyFromRealm(categoryRealmResults));
-        // TaskのListView用のアダプタに渡す
         mListView.setAdapter(categoryAdapter);
         // 表示を更新するために、アダプターにデータが変更されたことを知らせる
         categoryAdapter.notifyDataSetChanged();
@@ -143,10 +181,9 @@ public class EditCategory extends AppCompatActivity {
         mRealm.close();
     }
 
-    private void editCategory(){
+    private void editCategory(Category mCategory, String categoryName){
         // Categoryの追加・更新
         Realm realm = Realm.getDefaultInstance();
-
         realm.beginTransaction();
 
         if (mCategory == null) {
@@ -163,15 +200,11 @@ public class EditCategory extends AppCompatActivity {
             }
             mCategory.setId(identifier);
         }
-
-        String category = InputCategory.getText().toString();
-
-        mCategory.setCategoryName(category);
+        mCategory.setCategoryName(categoryName);
 
         realm.copyToRealmOrUpdate(mCategory);
         realm.commitTransaction();
 
         realm.close();
-
     }
 }

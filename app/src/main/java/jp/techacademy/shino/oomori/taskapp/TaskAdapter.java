@@ -35,7 +35,7 @@ public class TaskAdapter extends BaseAdapter {
 
         realm = Realm.getDefaultInstance();
         realm.close();
-        categoryRealmResults = realm.where(Category.class).findAllSorted("id", Sort.DESCENDING);
+        categoryRealmResults = realm.where(Category.class).findAllSorted("id");
     }
 
     public void setTaskList(ArrayList<Task> taskArrayList) {
@@ -73,8 +73,7 @@ public class TaskAdapter extends BaseAdapter {
         textView1.setText(mTaskArrayList.get(position).getTitle());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE);
         Date date = mTaskArrayList.get(position).getDate();
-//        String category = categoryRealmResults.get(mTaskArrayList.get(position).getCategoryId()).getCategoryName();
-        String category = "";
+        String category = categoryRealmResults.get(mTaskArrayList.get(position).getCategoryId()).getCategoryName();
         textView2.setText(simpleDateFormat.format(date) + "  " + category);
 
         return convertView;

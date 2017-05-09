@@ -52,6 +52,7 @@ public class CategoryAdapter extends BaseAdapter implements SpinnerAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        // 1回もタップしてない状態のスピナーの描画
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(android.R.layout.simple_list_item_1, null);
         }
@@ -64,7 +65,7 @@ public class CategoryAdapter extends BaseAdapter implements SpinnerAdapter {
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        // TODO : getViewと同じ内容でいいのか？
+        // 展開した時のスピナーの状態の描画。選ばれている行を色つけたりとかできる
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(android.R.layout.simple_list_item_1, null);
         }

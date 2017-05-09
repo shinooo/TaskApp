@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:text="カテゴリー追加" />
+            android:text="カテゴリー更新" />
         <ListView
             android:id="@+id/listView1"
             android:layout_width="match_parent"
